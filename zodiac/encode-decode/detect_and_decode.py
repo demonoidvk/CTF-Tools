@@ -12,8 +12,7 @@ class DetectDecodeMain:
     update_flag = False
 
     def __int__(self):
-        output = []
-        update_flag = False
+        pass
 
     def update_csv_data(self):
         update_csv("data.csv", self.output, Utils.setup_column_names_for_csv())
