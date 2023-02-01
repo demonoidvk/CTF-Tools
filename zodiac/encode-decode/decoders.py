@@ -1,11 +1,14 @@
 import base64
-# from detect_and_decode import write_to_dict
-from detect_and_decode import DetectDecodeMain as dm
+import re
+import base45 as base45
 
 
 def decode_base64(string):
     decoded_string = ""
     try:
+        pattern = re.compile("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$")
+        if not pattern.match(string.decode()):
+            return decoded_string
         # Attempt to decode string as base64
         decoded_string = base64.b64decode(string)
     except Exception as e:
@@ -16,6 +19,9 @@ def decode_base64(string):
 def decode_base32(string):
     decoded_string = ""
     try:
+        pattern = re.compile("^[A-Z2-7]+$")
+        if not pattern.match(string.decode()):
+            return decoded_string
         # Attempt to decode string as base32
         decoded_string = base64.b32decode(string)
     except:
@@ -24,36 +30,107 @@ def decode_base32(string):
 
 
 def decode_base16(string):
+    decoded_string = ""
     try:
+        pattern = re.compile("^[0-9A-Fa-f]+$")
+        if not pattern.match(string.decode()):
+            return decoded_string
         # Attempt to decode string as base16 (hex)
         decoded_string = base64.b16decode(string)
-        dm.write_to_dict(string, decoded_string, "base16")
     except:
         pass
+    return decoded_string
 
 
 def decode_a85(string):
+    decoded_string = ""
     try:
+        pattern = re.compile("^<~[!-u]+~>$")
+        if not pattern.match(string.decode()):
+            return decoded_string
         # Attempt to decode string as a85 (hex)
         decoded_string = base64.a85decode(string)
-        dm.write_to_dict(string, decoded_string, "a85")
     except:
         pass
+    return decoded_string
 
 
 def decode_b32hex(string):
+    decoded_string = ""
     try:
         # Attempt to decode string as b32hex (hex)
         decoded_string = base64.b32hexdecode(string)
-        dm.write_to_dict(string, decoded_string, "b32hex")
     except:
         pass
+    return decoded_string
 
 
 def decode_b85(string):
+    decoded_string = ""
     try:
         # Attempt to decode string as b85
         decoded_string = base64.b85decode(string)
-        dm.write_to_dict(string, decoded_string, "b85")
     except:
         pass
+    return decoded_string
+
+
+def decode_base45(string):
+    decoded_string = ""
+    try:
+        # pattern = re.compile("^[A-Z2-7]+$")
+        # if not pattern.match(string.decode()):
+        #     return decoded_string
+        # Attempt to decode string as base32
+        decoded_string = base45.b45decode(string)
+    except:
+        pass
+    return decoded_string
+
+
+def decode_hex_encoding(string):
+    decoded_string = ""
+    try:
+        # Decode hex encoded string
+        decoded_string = bytes.fromhex(string).decode('utf-8')
+    except:
+        pass
+    return decoded_string
+
+
+def decode_octal_encoding(string):
+    decoded_string = ""
+    try:
+        # Decode hex encoded string
+        decoded_string = bytes([int(x, 8) for x in string.split("\\")]).decode('utf-8')
+    except:
+        pass
+    return decoded_string
+
+
+def decode_charcode_encoding(string):
+    decoded_string = ""
+    chars=""
+    try:
+        for splitting_char in find_splitting_character(string.decode()):
+            if str(string.decode()).startswith(splitting_char):
+                chars = string.split(splitting_char)[1:]
+            else:
+                chars = string.split(splitting_char)[0:]
+        decoded_string = ""
+        if len(chars) > 0:
+            for char in chars:
+                decoded_char = chr(int(char.split(";")[0]))
+                decoded_string += decoded_char
+    except:
+        pass
+    return decoded_string
+
+def find_splitting_character(string):
+    found_characters = []
+    for splitting_character in ["&#", "\\x", "\\u", ";", ","," ", ":", "\\n"]:
+        if splitting_character in string:
+            found_characters.append(splitting_character)
+    if not found_characters:
+        print("No known splitting character found")
+    return found_characters

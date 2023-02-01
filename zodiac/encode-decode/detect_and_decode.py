@@ -6,7 +6,6 @@ from utils import Utils
 
 separator = "#!||!#"
 
-
 class DetectDecodeMain:
     output = []
     update_flag = False
@@ -19,7 +18,7 @@ class DetectDecodeMain:
 
     @staticmethod
     def write_to_dict(encoded_string, decoded_string, encoding):
-        if decoded_string != encoded_string.decode('utf-8'):
+        if decoded_string and len(decoded_string)> 0 and decoded_string != encoded_string.decode('utf-8'):
             result = {}
             print("Decoded string:", decoded_string)
             result["encoded_string"] = encoded_string.decode()
@@ -30,9 +29,36 @@ class DetectDecodeMain:
 
     def detect_base_encoding(self, string):
         try:
-            self.write_to_dict(string, decoders.decode_base64(string), "base64")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_base64(string), "base64")
             if not self.update_flag:
                 self.write_to_dict(string, decoders.decode_base32(string), "base32")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_a85(string), "a85")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_b85(string), "b85")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_base16(string), "b16")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_b32hex(string), "b32hex")
+        except Exception as e:
+            print(e)
+            print("No base encoding detected")
+
+    def detect_character_encoding(self, string):
+        try:
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_hex_encoding(string), "hex")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_octal_encoding(string), "octal")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_charcode_encoding(string), "charcode")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_b85(string), "b85")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_base16(string), "b16")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_b32hex(string), "b32hex")
 
         except Exception:
             print("No base encoding detected")
@@ -48,6 +74,8 @@ class DetectDecodeMain:
                 self.write_to_dict(string, decoded_string, encoding['encoding'])
                 if not self.update_flag:
                     self.detect_base_encoding(string)
+                    if not self.update_flag:
+                        self.detect_character_encoding(string)
                 else:
                     check = input("Do you have the decode string? (y/n)")
                     if "y" in check:
