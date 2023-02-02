@@ -41,6 +41,8 @@ class DetectDecodeMain:
                 self.write_to_dict(string, decoders.decode_base16(string), "b16")
             if not self.update_flag:
                 self.write_to_dict(string, decoders.decode_b32hex(string), "b32hex")
+            if not self.update_flag:
+                self.write_to_dict(string, decoders.decode_base45(string), "base45")
         except Exception as e:
             print(e)
             print("No base encoding detected")
@@ -53,12 +55,12 @@ class DetectDecodeMain:
                 self.write_to_dict(string, decoders.decode_octal_encoding(string), "octal")
             if not self.update_flag:
                 self.write_to_dict(string, decoders.decode_charcode_encoding(string), "charcode")
-            if not self.update_flag:
-                self.write_to_dict(string, decoders.decode_b85(string), "b85")
-            if not self.update_flag:
-                self.write_to_dict(string, decoders.decode_base16(string), "b16")
-            if not self.update_flag:
-                self.write_to_dict(string, decoders.decode_b32hex(string), "b32hex")
+            # if not self.update_flag:
+            #     self.write_to_dict(string, decoders.decode_b85(string), "b85")
+            # if not self.update_flag:
+            #     self.write_to_dict(string, decoders.decode_base16(string), "b16")
+            # if not self.update_flag:
+            #     self.write_to_dict(string, decoders.decode_b32hex(string), "b32hex")
 
         except Exception:
             print("No base encoding detected")
@@ -73,19 +75,20 @@ class DetectDecodeMain:
                 decoded_string = string.decode(encoding['encoding'])
                 self.write_to_dict(string, decoded_string, encoding['encoding'])
                 if not self.update_flag:
+                    self.detect_character_encoding(string)
+                if not self.update_flag:
                     self.detect_base_encoding(string)
                     if not self.update_flag:
-                        self.detect_character_encoding(string)
-                else:
-                    check = input("Do you have the decode string? (y/n)")
-                    if "y" in check:
-                        decoded_string = input("Please input the decoded string?")
-                        encoding_algo = input("Please input the encoding algorithm used?")
-                        self.write_to_dict(string, bytes(decoded_string), encoding_algo)
-                    else:
-                        print("Exiting")
+                        check = input("Do you have the decode string? (y/n)")
+                        if "y" in check:
+                            decoded_string = input("Please input the decoded string?")
+                            encoding_algo = input("Please input the encoding algorithm used?")
+                            self.write_to_dict(string, bytes(decoded_string), encoding_algo)
+                        else:
+                            print("Exiting")
 
-            except Exception:
+            except Exception as e:
+                print(e)
                 print("Unable to decode with this encoding")
         else:
             if decoded_string is None:
