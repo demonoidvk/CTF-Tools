@@ -45,7 +45,7 @@ def decode_base16(string):
 def decode_a85(string):
     decoded_string = ""
     try:
-        pattern = re.compile("^<~[!-u]+~>$")
+        pattern = re.compile(r'^<~[!-u]+~>$')
         if not pattern.match(string.decode()):
             return decoded_string
         # Attempt to decode string as a85 (hex)
@@ -58,6 +58,9 @@ def decode_a85(string):
 def decode_b32hex(string):
     decoded_string = ""
     try:
+        pattern = re.compile(r'^[0-9A-V]{8}(?:[0-9A-V]{8})*$')
+        if not pattern.match(string.decode()):
+            return decoded_string
         # Attempt to decode string as b32hex (hex)
         decoded_string = base64.b32hexdecode(string)
     except:
@@ -68,6 +71,9 @@ def decode_b32hex(string):
 def decode_b85(string):
     decoded_string = ""
     try:
+        pattern = re.compile(r'^[!-u]+$')
+        if not pattern.match(string.decode()):
+            return decoded_string
         # Attempt to decode string as b85
         decoded_string = base64.b85decode(string)
     except:
@@ -78,9 +84,9 @@ def decode_b85(string):
 def decode_base45(string):
     decoded_string = ""
     try:
-        # pattern = re.compile("^[A-Z2-7]+$")
-        # if not pattern.match(string.decode()):
-        #     return decoded_string
+        pattern = re.compile(r'^[0-9A-Z\$%\*\+\-\./:]+$')
+        if not pattern.match(string.decode()):
+            return decoded_string
         # Attempt to decode string as base32
         decoded_string = base45.b45decode(string)
     except:
@@ -108,21 +114,24 @@ def decode_octal_encoding(string):
     return decoded_string
 
 
-def decode_charcode_encoding(string):
+def decode_charcode_encoding(input_string):
     decoded_string = ""
     chars=""
+    string = input_string.decode()
     try:
-        for splitting_char in find_splitting_character(string.decode()):
-            if str(string.decode()).startswith(splitting_char):
+        for splitting_char in find_splitting_character(string):
+            if str(string).startswith(splitting_char):
                 chars = string.split(splitting_char)[1:]
             else:
                 chars = string.split(splitting_char)[0:]
         decoded_string = ""
         if len(chars) > 0:
+            # TODO fix the below code
             for char in chars:
                 decoded_char = chr(int(char.split(";")[0]))
                 decoded_string += decoded_char
-    except:
+    except Exception as e:
+        print(e)
         pass
     return decoded_string
 
